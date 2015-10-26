@@ -4395,12 +4395,12 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                         Offset (0x86), 
                         BRIT,   8, 
                         Offset (0xA0), 
-                        B1RR,   32, 
-                        B1PV,   32, 
+                        BRR0,8,BRR1,8,BRR2,8,BRR3,8, 
+                        BPV0,8,BPV1,8,BPV2,8,BPV3,8, 
                         B2RR,   32, 
                         B2PV,   32, 
-                        B1AF,   32, 
-                        B1VL,   32, 
+                        BAF0,8,BAF1,8,BAF2,8,BAF3,8, 
+                        BVL0,8,BVL1,8,BVL2,8,BVL3,8, 
                         B2AF,   32, 
                         B2VL,   32, 
                         CTMP,   8, 
@@ -4799,8 +4799,10 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                             }
                             Else
                             {
-                                Store (\_SB.PCI0.LPCB.H_EC.B1AF, Local3)
-                                Store (\_SB.PCI0.LPCB.H_EC.B1VL, Local4)
+                                /*Store (\_SB.PCI0.LPCB.H_EC.B1AF, Local3)*/
+                                Store (B1B4(\_SB.PCI0.LPCB.H_EC.BAF0,\_SB.PCI0.LPCB.H_EC.BAF1,\_SB.PCI0.LPCB.H_EC.BAF2,\_SB.PCI0.LPCB.H_EC.BAF3), Local3)
+                                /*Store (\_SB.PCI0.LPCB.H_EC.B1VL, Local4)*/
+                                Store (B1B4(\_SB.PCI0.LPCB.H_EC.BVL0,\_SB.PCI0.LPCB.H_EC.BVL1,\_SB.PCI0.LPCB.H_EC.BVL2,\_SB.PCI0.LPCB.H_EC.BVL3), Local4)
                                 Store (Local3, Local0)
                                 And (Local0, 0xFFFF, Local0)
                                 ShiftLeft (Local0, 0x08, Local1)
@@ -4940,8 +4942,10 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                             }
                             Else
                             {
-                                Store (\_SB.PCI0.LPCB.H_EC.B1RR, Local3)
-                                Store (\_SB.PCI0.LPCB.H_EC.B1PV, Local4)
+                                /*Store (\_SB.PCI0.LPCB.H_EC.B1RR, Local3)*/
+                                Store (B1B4(\_SB.PCI0.LPCB.H_EC.BRR0,\_SB.PCI0.LPCB.H_EC.BRR1,\_SB.PCI0.LPCB.H_EC.BRR2,\_SB.PCI0.LPCB.H_EC.BRR3), Local3)
+                                /*Store (\_SB.PCI0.LPCB.H_EC.B1PV, Local4)*/
+                                Store (B1B4(\_SB.PCI0.LPCB.H_EC.BPV0,\_SB.PCI0.LPCB.H_EC.BPV1,\_SB.PCI0.LPCB.H_EC.BPV2,\_SB.PCI0.LPCB.H_EC.BPV3), Local4)
                                 Store (Local3, Local0)
                                 And (Local0, 0xFF, Local0)
                                 If (LAnd (LNotEqual (Local0, 0x00), LNotEqual (Local0, 0x05)))
@@ -9486,7 +9490,8 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
 
         If (LNotEqual (Arg0, 0x05))
         {
-            Store (\_SB.PCI0.LPCB.H_EC.B1AF, Local0)
+            /*Store (\_SB.PCI0.LPCB.H_EC.B1AF, Local0)*/
+            Store (B1B4(\_SB.PCI0.LPCB.H_EC.BAF0,\_SB.PCI0.LPCB.H_EC.BAF1,\_SB.PCI0.LPCB.H_EC.BAF2,\_SB.PCI0.LPCB.H_EC.BAF3), Local0)
             ShiftRight (Local0, 0x10, Local0)
             And (Local0, 0xFFFF, Local0)
             Store (Local0, \BFCC)
@@ -9579,7 +9584,8 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
             CPRN ()
         }
 
-        Store (\_SB.PCI0.LPCB.H_EC.B1AF, Local0)
+        /*Store (\_SB.PCI0.LPCB.H_EC.B1AF, Local0)*/
+        Store (B1B4(\_SB.PCI0.LPCB.H_EC.BAF0,\_SB.PCI0.LPCB.H_EC.BAF1,\_SB.PCI0.LPCB.H_EC.BAF2,\_SB.PCI0.LPCB.H_EC.BAF3), Local0)
         ShiftRight (Local0, 0x10, Local0)
         And (Local0, 0xFFFF, Local0)
         If (LNotEqual (Local0, \BFCC))
@@ -11417,6 +11423,14 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
 
     Method (WAK, 1, NotSerialized)
     {
+    }
+    Method (B1B4, 4, NotSerialized)
+    {
+        Store(Arg3, Local0)
+        Or(Arg2, ShiftLeft(Local0, 8), Local0)
+        Or(Arg1, ShiftLeft(Local0, 8), Local0)
+        Or(Arg0, ShiftLeft(Local0, 8), Local0)
+        Return(Local0)
     }
 }
 
