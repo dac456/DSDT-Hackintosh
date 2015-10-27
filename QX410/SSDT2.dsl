@@ -188,6 +188,7 @@ DefinitionBlock ("SSDT2.aml", "SSDT", 1, "OptRef", "OptTabl", 0x00001000)
         Method (_INI, 0, NotSerialized)  // _INI: Initialize
         {
             Store (Zero, \_SB.PCI0.P0P2.PEGP._ADR)
+            _OFF ()
         }
 
         Name (DGPS, Zero)

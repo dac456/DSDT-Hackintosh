@@ -367,6 +367,27 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
         Offset (0x1AB), 
         OPWA,   8
     }
+    
+    OperationRegion (BRIT, SystemMemory, 0xF9048254, 0x04)
+    Field (BRIT, AnyAcc, Lock, Preserve)
+    {
+        LEVL, 32
+    }
+    OperationRegion (BRI2, SystemMemory, 0xF9048250, 0x04)
+    Field (BRI2, AnyAcc, Lock, Preserve)
+    {
+        LEV2, 32
+    }
+    OperationRegion (BRI3, SystemMemory, 0xF90C8250, 0x04)
+    Field (BRI3, AnyAcc, Lock, Preserve)
+    {
+        LEVW, 32
+    }
+    OperationRegion (BRI4, SystemMemory, 0xF90C8254, 0x04)
+    Field (BRI4, AnyAcc, Lock, Preserve)
+    {
+        LEVX, 32
+    }
 
     Scope (\_SB)
     {
@@ -3245,7 +3266,9 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
         Alias (PRSA, PRSE)
         Alias (PRSA, PRSF)
         Alias (PRSA, PRSG)
-        Alias (PRSA, PRSH)
+        Alias (PRSA, PRSH)    
+        
+        
         Device (PCI0)
         {
             Name (_HID, EisaId ("PNP0A08"))  // _HID: Hardware ID
@@ -5738,6 +5761,77 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
             Device (GFX0)
             {
                 Name (_ADR, 0x00020000)  // _ADR: Address
+                
+                /*Method (_DSM, 4, NotSerialized)
+                {
+                    Store (Package ()
+                        {
+                        
+                            "AAPL,os-info", 
+                            Buffer ()
+                            {
+                                0x30, 0x49, 0x01, 0x11, 0x01, 0x10, 0x08, 0x00, 
+                                0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                0xFF, 0xFF, 0xFF, 0xFF
+                            }, 
+                            "VRAM,totalsize", 
+                            Buffer ()
+                            {
+                                0x00, 0x00, 0x00, 0x12
+                            },
+                            "model", 
+                            Buffer ()
+                            {
+                                "Intel HD Graphics"
+                            },    
+                            "AAPL,BacklightRestore",
+                            Buffer (0x04)
+                            {
+                                0x01, 0x00, 0x00, 0x00
+                            },
+                            
+                            "AAPL,HasPanel",
+                            Buffer (0x04)
+                            {
+                                0x01, 0x00, 0x00, 0x00
+                            },
+                            
+                            "AAPL,Haslid",
+                            Buffer (0x04)
+                            {
+                                0x01, 0x00, 0x00, 0x00
+                            },
+                            
+                            "AAPL,backlight-control",
+                            Buffer (0x04)
+                            {
+                                0x01, 0x00, 0x00, 0x00
+                            },
+                            
+                            "@0,backlight-control",
+                            Buffer (0x04)
+                            {
+                                0x01, 0x00, 0x00, 0x00
+                            },
+                            
+                            "@0,AAPL,boot-display",
+                            Buffer (0x04)
+                            {
+                                0x01, 0x00, 0x00, 0x00
+                            },
+                            
+                            "@0,built-in",
+                            Buffer ()
+                            {
+                                One
+                            },
+                                    
+                        }, Local0)
+                    DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
+                    
+                    Return (Local0)
+                }*/                  
+                
                 Method (PCPC, 0, NotSerialized)
                 {
                 }
@@ -5985,9 +6079,49 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                         }
                     }
                 }
+                /*Device (DD02)
+                {
+                    Name (_HID, EisaId ("LCD1234"))
+                    Method (_ADR, 0, Serialized)
+                    {
+                        If (LEqual (DID2, Zero))
+                        {
+                            Return (0x02)
+                        }
+                        Else
+                        {
+                            Return (And (0xFFFF, DID2))
+                        }
+                    }
+                    Method (_DCS, 0, NotSerialized)
+                    {
+                        If (LEqual (LIDS, Zero))
+                        {
+                            Return (Zero)
+                        }
+                        Return (CDDS (DID2))
+                    }
+                    Method (_DGS, 0, NotSerialized)
+                    {
+                        If (CondRefOf (SNXD))
+                        {
+                            Return (NXD2)
+                        }
+                        Return (NDDS (DID2))
+                    }
+                    Method (_DSS, 1, NotSerialized)
+                    {
+                        If (LEqual (And (Arg0, 0xC0000000), 0xC0000000))
+                        {
+                            Store (NSTE, CSTE)
+                        }
+                    }
+                }*/
 
                 Device (DD02)
                 {
+                    Name (_HID, EisaId ("LCD1234"))
+                    
                     Method (_ADR, 0, Serialized)  // _ADR: Address
                     {
                         If (LEqual (DID2, 0x00))
@@ -7299,20 +7433,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                 Device (PXSX)
                 {
                     Name (_ADR, 0x00)  // _ADR: Address
-                    Method (_DSM, 4, NotSerialized)
-                    {
-                        If (LEqual (Arg2, Zero)) { Return (Buffer() { 0x03 } ) }
-                        Return (Package()
-                        {
-                            "device-id", Buffer() { 0x30, 0x00, 0x00, 0x00 },
-                            "name", "pci168c,30",
-                            "AAPL,slot-name", Buffer() { "AirPort" },
-                            "device_type", Buffer() { "AirPort" },
-                            "model", Buffer() { "Atheros 9285 802.11 b/g/n Wireless Network Adapter" },
-                            "subsystem-id", Buffer() { 0x8F, 0x00, 0x00, 0x00 },
-                            "subsystem-vendor-id", Buffer() { 0x6B, 0x10, 0x00, 0x00 },
-                        })
-                    }
+                    
                 }
 
                 Method (_PRT, 0, NotSerialized)  // _PRT: PCI Routing Table
@@ -7638,55 +7759,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                             /* 0000 */  0x81, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                             /* 0008 */  0x30, 0x1C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 
                         } })
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    If (LEqual (_T_0, 0x01))
-                                    {
-                                        Return (0x01)
-                                    }
-                                    Else
-                                    {
-                                        If (LEqual (_T_0, 0x02))
-                                        {
-                                            Return (SDGV)
-                                        }
-                                        Else
-                                        {
-                                            Return (0x00)
-                                        }
-                                    }
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
 
                         Device (SPR1)
                         {
@@ -7828,41 +7901,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                     Device (PRT2)
                     {
                         Name (_ADR, 0x02)  // _ADR: Address
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    Return (0x00)
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
                     }
                 }
             }
@@ -7930,81 +7969,13 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                     Device (PRT1)
                     {
                         Name (_ADR, 0x01)  // _ADR: Address
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    Return (0x00)
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
                     }
 
                     Device (PRT2)
                     {
                         Name (_ADR, 0x02)  // _ADR: Address
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    Return (0x00)
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
                     }
                 }
             }
@@ -8028,81 +7999,13 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                     Device (PRT1)
                     {
                         Name (_ADR, 0x01)  // _ADR: Address
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    Return (0x00)
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
                     }
 
                     Device (PRT2)
                     {
                         Name (_ADR, 0x02)  // _ADR: Address
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    Return (0x00)
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
                     }
                 }
             }
@@ -8170,81 +8073,13 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                     Device (PRT1)
                     {
                         Name (_ADR, 0x01)  // _ADR: Address
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    Return (0x00)
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
                     }
 
                     Device (PRT2)
                     {
                         Name (_ADR, 0x02)  // _ADR: Address
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    Return (0x00)
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
                     }
                 }
             }
@@ -8268,81 +8103,13 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                     Device (PRT1)
                     {
                         Name (_ADR, 0x01)  // _ADR: Address
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    Return (0x00)
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
                     }
 
                     Device (PRT2)
                     {
                         Name (_ADR, 0x02)  // _ADR: Address
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    Return (0x00)
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
                     }
                 }
             }
@@ -8416,55 +8183,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                             /* 0000 */  0x81, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                             /* 0008 */  0x30, 0x1C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 
                         } })
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    If (LEqual (_T_0, 0x01))
-                                    {
-                                        Return (0x01)
-                                    }
-                                    Else
-                                    {
-                                        If (LEqual (_T_0, 0x02))
-                                        {
-                                            Return (SDGV)
-                                        }
-                                        Else
-                                        {
-                                            Return (0x00)
-                                        }
-                                    }
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
 
                         Device (SPR1)
                         {
@@ -8606,41 +8325,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                     Device (PRT2)
                     {
                         Name (_ADR, 0x02)  // _ADR: Address
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    Return (0x00)
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
                     }
                 }
             }
@@ -8708,81 +8393,13 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                     Device (PRT1)
                     {
                         Name (_ADR, 0x01)  // _ADR: Address
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    Return (0x00)
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
                     }
 
                     Device (PRT2)
                     {
                         Name (_ADR, 0x02)  // _ADR: Address
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    Return (0x00)
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
                     }
                 }
             }
@@ -8806,81 +8423,13 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                     Device (PRT1)
                     {
                         Name (_ADR, 0x01)  // _ADR: Address
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    Return (0x00)
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
                     }
 
                     Device (PRT2)
                     {
                         Name (_ADR, 0x02)  // _ADR: Address
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    Return (0x00)
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
                     }
                 }
             }
@@ -8904,81 +8453,13 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                     Device (PRT1)
                     {
                         Name (_ADR, 0x01)  // _ADR: Address
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    Return (0x00)
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
                     }
 
                     Device (PRT2)
                     {
                         Name (_ADR, 0x02)  // _ADR: Address
-                        Method (_DSM, 4, Serialized)  // _DSM: Device-Specific Method
-                        {
-                            If (LEqual (Arg0, ToUUID ("a5fc708f-8775-4ba6-bd0c-ba90a1ec72f8")))
-                            {
-                                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                                Store (ToInteger (Arg2), _T_0)
-                                If (LEqual (_T_0, 0x00))
-                                {
-                                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                                    Store (ToInteger (Arg1), _T_1)
-                                    If (LEqual (_T_1, 0x01))
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x07                                           
-                                        })
-                                    }
-                                    Else
-                                    {
-                                        Return (Buffer (0x01)
-                                        {
-                                             0x00                                           
-                                        })
-                                    }
-                                }
-                                Else
-                                {
-                                    Return (0x00)
-                                }
-                            }
-                            Else
-                            {
-                                Return (0x00)
-                            }
-                        }
+                        
                     }
                 }
             }
@@ -9037,7 +8518,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                     Return (PR01 ())
                 }
             }
-        }
+        }        
 
         Scope (\_GPE)
         {
@@ -9051,6 +8532,171 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                 Notify (\_SB.PCI0.RP04, 0x02)
             }
         }
+        Device (PNLF)
+        {
+            Name (_HID, EisaId ("APP0002"))
+            Name (_CID, "backlight")
+            Name (_UID, 0x0A)
+            Name (_STA, 0x0B)
+            Method (_BCL, 0, NotSerialized)
+            {
+                Return (Package (0x13)
+                {
+                    0x64,
+                    0x32,
+                    Zero,
+                    0x06,
+                    0x0C,
+                    0x12,
+                    0x18,
+                    0x1E,
+                    0x24,
+                    0x2A,
+                    0x30,
+                    0x36,
+                    0x3C,
+                    0x42,
+                    0x48,
+                    0x4E,
+                    0x54,
+                    0x5A,
+                    0x64
+                })
+            }
+            Method (_BCM, 1, NotSerialized)
+            {
+                Store (0x80000000, LEV2)
+                If (LGreaterEqual (Arg0, 0x64))
+                {
+                    Store (0x12FF, LEVL)
+                }
+                Else
+                {
+                    If (LGreaterEqual (Arg0, 0x5A))
+                    {
+                        Store (0x11FF, LEVL)
+                    }
+                    Else
+                    {
+                        If (LGreaterEqual (Arg0, 0x54))
+                        {
+                            Store (0x103A, LEVL)
+                        }
+                        Else
+                        {
+                            If (LGreaterEqual (Arg0, 0x4E))
+                            {
+                                Store (0x0EBB, LEVL)
+                            }
+                            Else
+                            {
+                                If (LGreaterEqual (Arg0, 0x48))
+                                {
+                                    Store (0x0B24, LEVL)
+                                }
+                                Else
+                                {
+                                    If (LGreaterEqual (Arg0, 0x42))
+                                    {
+                                        Store (0x0873, LEVL)
+                                    }
+                                    Else
+                                    {
+                                        If (LGreaterEqual (Arg0, 0x3C))
+                                        {
+                                            Store (0x065B, LEVL)
+                                        }
+                                        Else
+                                        {
+                                            If (LGreaterEqual (Arg0, 0x36))
+                                            {
+                                                Store (0x04C8, LEVL)
+                                            }
+                                            Else
+                                            {
+                                                If (LGreaterEqual (Arg0, 0x30))
+                                                {
+                                                    Store (0x0396, LEVL)
+                                                }
+                                                Else
+                                                {
+                                                    If (LGreaterEqual (Arg0, 0x2A))
+                                                    {
+                                                        Store (0x02B0, LEVL)
+                                                    }
+                                                    Else
+                                                    {
+                                                        If (LGreaterEqual (Arg0, 0x24))
+                                                        {
+                                                            Store (0x0266, LEVL)
+                                                        }
+                                                        Else
+                                                        {
+                                                            If (LGreaterEqual (Arg0, 0x1E))
+                                                            {
+                                                                Store (0x0218, LEVL)
+                                                            }
+                                                            Else
+                                                            {
+                                                                If (LGreaterEqual (Arg0, 0x18))
+                                                                {
+                                                                    Store (0x01D1, LEVL)
+                                                                }
+                                                                Else
+                                                                {
+                                                                    If (LGreaterEqual (Arg0, 0x12))
+                                                                    {
+                                                                        Store (0x0191, LEVL)
+                                                                    }
+                                                                    Else
+                                                                    {
+                                                                        If (LGreaterEqual (Arg0, 0x0C))
+                                                                        {
+                                                                            Store (0x0161, LEVL)
+                                                                        }
+                                                                        Else
+                                                                        {
+                                                                            If (LGreaterEqual (Arg0, 0x06))
+                                                                            {
+                                                                                Store (0x0132, LEVL)
+                                                                            }
+                                                                            Else
+                                                                            {
+                                                                                If (LGreaterEqual (Arg0, Zero))
+                                                                                {
+                                                                                    Store (0x82, LEVL)
+                                                                                }
+                                                                                Else
+                                                                                {
+                                                                                    Store (0x11FF, LEVL)
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Method (_BQC, 0, NotSerialized)
+            {
+                Return (\_SB.PCI0.GFX0.DD02._BQC ())
+            }
+            Method (_DOS, 1, NotSerialized)
+            {
+                \_SB.PCI0.GFX0._DOS (Arg0)
+            }
+        }
+        
     }
 
     Device (\_SB.PCI0.LPCB.TPM)
@@ -9106,127 +8752,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
             MOR,    1
         }
 
-        Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
-        {
-            If (LEqual (Arg0, ToUUID ("3dddfaa6-361b-4eb4-a424-8d10089d1653") /* Physical Presence Interface */))
-            {
-                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                Store (ToInteger (Arg2), _T_0)
-                If (LEqual (_T_0, 0x00))
-                {
-                    Return (Buffer (0x01)
-                    {
-                         0x7F                                           
-                    })
-                }
-                Else
-                {
-                    If (LEqual (_T_0, 0x01))
-                    {
-                        Return ("1.0")
-                    }
-                    Else
-                    {
-                        If (LEqual (_T_0, 0x02))
-                        {
-                            Store (ToInteger (DerefOf (Index (Arg3, 0x00))), RQST)
-                            Return (Zero)
-                        }
-                        Else
-                        {
-                            If (LEqual (_T_0, 0x03))
-                            {
-                                Name (PPI1, Package (0x02)
-                                {
-                                    0x00, 
-                                    0x00
-                                })
-                                Store (RQST, Index (PPI1, 0x01))
-                                Return (PPI1)
-                            }
-                            Else
-                            {
-                                If (LEqual (_T_0, 0x04))
-                                {
-                                    Return (One)
-                                }
-                                Else
-                                {
-                                    If (LEqual (_T_0, 0x05))
-                                    {
-                                        Name (PPI2, Package (0x03)
-                                        {
-                                            0x00, 
-                                            0x00, 
-                                            0x00
-                                        })
-                                        Store (RCNT, Index (PPI2, 0x01))
-                                        If (LEqual (ERRS, 0xFFF0))
-                                        {
-                                            Store (0xFFFFFFF0, Index (PPI2, 0x02))
-                                        }
-                                        Else
-                                        {
-                                            If (LEqual (ERRS, 0xFFF1))
-                                            {
-                                                Store (0xFFFFFFF1, Index (PPI2, 0x02))
-                                            }
-                                            Else
-                                            {
-                                                Store (ERRS, Index (PPI2, 0x02))
-                                            }
-                                        }
-
-                                        Return (PPI2)
-                                    }
-                                    Else
-                                    {
-                                        If (LEqual (_T_0, 0x06))
-                                        {
-                                            Return (Zero)
-                                        }
-                                        Else
-                                        {
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            Else
-            {
-                If (LEqual (Arg0, ToUUID ("376054ed-cc13-4675-901c-4756d7f2d45d")))
-                {
-                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                    Store (ToInteger (Arg2), _T_1)
-                    If (LEqual (_T_1, 0x00))
-                    {
-                        Return (Buffer (0x01)
-                        {
-                             0x03                                           
-                        })
-                    }
-                    Else
-                    {
-                        If (LEqual (_T_1, 0x01))
-                        {
-                            Store (ToInteger (DerefOf (Index (Arg3, 0x00))), MOR)
-                            Return (Zero)
-                        }
-                        Else
-                        {
-                        }
-                    }
-                }
-            }
-
-            Return (Buffer (0x01)
-            {
-                 0x00                                           
-            })
-        }
+        
     }
 
     Scope (\_SB.PCI0)
@@ -9297,129 +8823,9 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
             Return (0x00)
         }
 
-        Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
-        {
-            If (LEqual (Arg0, ToUUID ("3dddfaa6-361b-4eb4-a424-8d10089d1653") /* Physical Presence Interface */))
-            {
-                Name (_T_0, Zero)  // _T_x: Emitted by ASL Compiler
-                Store (ToInteger (Arg2), _T_0)
-                If (LEqual (_T_0, 0x00))
-                {
-                    Return (Buffer (0x01)
-                    {
-                         0x7F                                           
-                    })
-                }
-                Else
-                {
-                    If (LEqual (_T_0, 0x01))
-                    {
-                        Return ("1.0")
-                    }
-                    Else
-                    {
-                        If (LEqual (_T_0, 0x02))
-                        {
-                            Store (ToInteger (DerefOf (Index (Arg3, 0x00))), RQST)
-                            Return (Zero)
-                        }
-                        Else
-                        {
-                            If (LEqual (_T_0, 0x03))
-                            {
-                                Name (PPI1, Package (0x02)
-                                {
-                                    0x00, 
-                                    0x00
-                                })
-                                Store (RQST, Index (PPI1, 0x01))
-                                Return (PPI1)
-                            }
-                            Else
-                            {
-                                If (LEqual (_T_0, 0x04))
-                                {
-                                    Return (One)
-                                }
-                                Else
-                                {
-                                    If (LEqual (_T_0, 0x05))
-                                    {
-                                        Name (PPI2, Package (0x03)
-                                        {
-                                            0x00, 
-                                            0x00, 
-                                            0x00
-                                        })
-                                        Store (RCNT, Index (PPI2, 0x01))
-                                        If (LEqual (ERRS, 0xFFF0))
-                                        {
-                                            Store (0xFFFFFFF0, Index (PPI2, 0x02))
-                                        }
-                                        Else
-                                        {
-                                            If (LEqual (ERRS, 0xFFF1))
-                                            {
-                                                Store (0xFFFFFFF1, Index (PPI2, 0x02))
-                                            }
-                                            Else
-                                            {
-                                                Store (ERRS, Index (PPI2, 0x02))
-                                            }
-                                        }
-
-                                        Return (PPI2)
-                                    }
-                                    Else
-                                    {
-                                        If (LEqual (_T_0, 0x06))
-                                        {
-                                            Return (Zero)
-                                        }
-                                        Else
-                                        {
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            Else
-            {
-                If (LEqual (Arg0, ToUUID ("376054ed-cc13-4675-901c-4756d7f2d45d")))
-                {
-                    Name (_T_1, Zero)  // _T_x: Emitted by ASL Compiler
-                    Store (ToInteger (Arg2), _T_1)
-                    If (LEqual (_T_1, 0x00))
-                    {
-                        Return (Buffer (0x01)
-                        {
-                             0x03                                           
-                        })
-                    }
-                    Else
-                    {
-                        If (LEqual (_T_1, 0x01))
-                        {
-                            Store (ToInteger (DerefOf (Index (Arg3, 0x00))), MOR)
-                            Return (Zero)
-                        }
-                        Else
-                        {
-                        }
-                    }
-                }
-            }
-
-            Return (Buffer (0x01)
-            {
-                 0x00                                           
-            })
-        }
+        
     }
-
+    
     Scope (\_PR)
     {
         Processor (CPU0, 0x01, 0x00000410, 0x06) {}
@@ -9518,6 +8924,11 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
 
     Method (_WAK, 1, Serialized)  // _WAK: Wake
     {
+        Store (0x80000000, LEVW)
+	    Store (0x061A061A, LEVX)
+	    Store (0x80000000, LEV2)
+	    Store (0x065B, LEVL)
+
         P8XH (0x00, 0xAB)
         P8XH (0x01, 0xAB)
         If (NEXP)
@@ -11431,6 +10842,36 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
         Or(Arg1, ShiftLeft(Local0, 8), Local0)
         Or(Arg0, ShiftLeft(Local0, 8), Local0)
         Return(Local0)
+    }
+    Method (DTGP, 5, NotSerialized)
+    {
+        If (LEqual (Arg0, Buffer (0x10)
+        {
+            /* 0000 */    0xC6, 0xB7, 0xB5, 0xA0, 0x18, 0x13, 0x1C, 0x44,
+            /* 0008 */    0xB0, 0xC9, 0xFE, 0x69, 0x5E, 0xAF, 0x94, 0x9B
+        }))
+        {
+            If (LEqual (Arg1, One))
+            {
+                If (LEqual (Arg2, Zero))
+                {
+                    Store (Buffer (One)
+                    {
+                        0x03
+                    }, Arg4)
+                    Return (One)
+                }
+                If (LEqual (Arg2, One))
+                {
+                    Return (One)
+                }
+            }
+        }
+        Store (Buffer (One)
+        {
+            0x00
+        }, Arg4)
+        Return (Zero)
     }
 }
 
