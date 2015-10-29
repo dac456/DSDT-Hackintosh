@@ -368,7 +368,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
         OPWA,   8
     }
     
-    OperationRegion (BRIT, SystemMemory, 0xF9048254, 0x04)
+    /*OperationRegion (BRIT, SystemMemory, 0xF9048254, 0x04)
     Field (BRIT, AnyAcc, Lock, Preserve)
     {
         LEVL, 32
@@ -387,7 +387,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
     Field (BRI4, AnyAcc, Lock, Preserve)
     {
         LEVX, 32
-    }
+    }*/
 
     Scope (\_SB)
     {
@@ -5762,7 +5762,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
             {
                 Name (_ADR, 0x00020000)  // _ADR: Address
                 
-                /*Method (_DSM, 4, NotSerialized)
+                Method (_DSM, 4, NotSerialized)
                 {
                     Store (Package ()
                         {
@@ -5770,7 +5770,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                             "AAPL,os-info", 
                             Buffer ()
                             {
-                                0x30, 0x49, 0x01, 0x11, 0x01, 0x10, 0x08, 0x00, 
+                                0x30, 0x49, 0x01, 0x11, 0x04, 0x10, 0x08, 0x00, 
                                 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
                                 0xFF, 0xFF, 0xFF, 0xFF
                             }, 
@@ -5784,7 +5784,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                             {
                                 "Intel HD Graphics"
                             },    
-                            "AAPL,BacklightRestore",
+                            /*"AAPL,BacklightRestore",
                             Buffer (0x04)
                             {
                                 0x01, 0x00, 0x00, 0x00
@@ -5824,13 +5824,13 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                             Buffer ()
                             {
                                 One
-                            },
+                            },*/
                                     
                         }, Local0)
                     DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
                     
                     Return (Local0)
-                }*/                  
+                }                  
                 
                 Method (PCPC, 0, NotSerialized)
                 {
@@ -8534,6 +8534,15 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
         }
         Device (PNLF)
         {
+            Name (_ADR, Zero)
+            Name (_HID, EisaId ("APP0002"))
+            Name (_CID, "backlight")
+            Name (_UID, 10)
+            Name (_STA, 0x0B)
+        }        
+        
+        /*Device (PNLF)
+        {
             Name (_HID, EisaId ("APP0002"))
             Name (_CID, "backlight")
             Name (_UID, 0x0A)
@@ -8542,17 +8551,17 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
             {
                 Return (Package (0x13)
                 {
-                    0x64,
-                    0x32,
-                    Zero,
                     0x06,
-                    0x0C,
-                    0x12,
-                    0x18,
-                    0x1E,
-                    0x24,
-                    0x2A,
-                    0x30,
+                    0x03,
+                    Zero,
+                    0x01,
+                    0x02,
+                    0x03,
+                    0x04,
+                    0x05,
+                    0x06,
+                    0x07,
+                    0x08,
                     0x36,
                     0x3C,
                     0x42,
@@ -8560,7 +8569,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
                     0x4E,
                     0x54,
                     0x5A,
-                    0x64
+                    0x64                    
                 })
             }
             Method (_BCM, 1, NotSerialized)
@@ -8695,7 +8704,7 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
             {
                 \_SB.PCI0.GFX0._DOS (Arg0)
             }
-        }
+        }*/
         
     }
 
@@ -8924,10 +8933,10 @@ DefinitionBlock ("DSDT.aml", "DSDT", 1, "SECCSD", "LH43STAR", 0x00000000)
 
     Method (_WAK, 1, Serialized)  // _WAK: Wake
     {
-        Store (0x80000000, LEVW)
+        /*Store (0x80000000, LEVW)
 	    Store (0x061A061A, LEVX)
 	    Store (0x80000000, LEV2)
-	    Store (0x065B, LEVL)
+	    Store (0x065B, LEVL)*/
 
         P8XH (0x00, 0xAB)
         P8XH (0x01, 0xAB)
